@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dicionário de Dados - Choco Doce</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <h1>Choco Doce - Dicionário de Dados</h1>
+        </div>
+        <div class="topbar-right">
+            <button id="theme-toggle">Alternar Tema</button>
+        </div>
+    </header>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h3>Tabelas</h3>
+            <input type="text" id="search-input" placeholder="Pesquisar tabelas ou colunas...">
+            <nav>
+                <ul id="table-list">
+                    <li><a href="#tb_cliente">cliente</a></li>
+                    <li><a href="#tb_endereco">endereco</a></li>
+                    <li><a href="#tb_usuario">usuario</a></li>
+                    <li><a href="#tb_categoria">categoria</a></li>
+                    <li><a href="#tb_produto">produto</a></li>
+                    <li><a href="#tb_historico_preco">historico_preco</a></li>
+                    <li><a href="#tb_pedido">pedido</a></li>
+                    <li><a href="#tb_item_pedido">item_pedido</a></li>
+                    <li><a href="#tb_estorno">estorno</a></li>
+                    <li><a href="#tb_log_auditoria">log_auditoria</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section class="identification">
+                <h2>Identificação do Projeto</h2>
+                <p><strong>Escopo:</strong> Sistema de Gestão Operacional, Estoque e Vendas para o minimercado Choco Doce, visando garantir consistência transacional e compliance com a LGPD.</p>
+                <p><strong>Tecnologia:</strong> MySQL (Engine InnoDB)</p>
+                <p><strong>Responsáveis:</strong> Claudio Santos Costa, Danilo Vilela da Silva, Davi Monteiro de Souza, Felipe Lucca da Mota, João Pedro Silva Fernandes dos Santos, Kevin Miney Tan Broetto, Lucas Lopes da Silva, Marcos Henrique Rodrigues de Oliveira, Otávio Oliveira Marselhas.</p>
+                <div class="actions">
+                    <a href="docs/Especificacao_Requisitos_Regras_Negocio_BD.pdf" class="btn" download>Baixar Especificação (PDF)</a>
+                    <button id="open-modal-btn" class="btn">Visualizar DER</button>
+                </div>
+            </section>
+
+            <!-- Tabela: cliente -->
+            <section id="tb_cliente" class="table-section">
+                <h2>Tabela: cliente</h2>
+                <p>Armazena os dados cadastrais e de consentimento (LGPD) dos clientes.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_cliente</td><td>Identificador único do cliente</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>nome</td><td>Nome completo do cliente</td><td>VARCHAR(100)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>cpf_cnpj</td><td>Documento fiscal único</td><td>VARCHAR(14)</td><td>NOT NULL, <strong>[UK]</strong></td><td><span class="badge badge-dps">DPS</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>email</td><td>Endereço de e-mail opcional</td><td>VARCHAR(100)</td><td>NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>telefone</td><td>Número de contato</td><td>VARCHAR(20)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>data_consentimento</td><td>Registro de aceite da política de privacidade</td><td>DATETIME</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Sistema</td><td>Gerente, Admin</td></tr>
+                        <tr><td>ativo</td><td>Flag de exclusão lógica</td><td>TINYINT(1)</td><td>NOT NULL, DEFAULT 1</td><td><span class="badge badge-na">N/A</span></td><td>Sistema</td><td>Gerente, Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: endereco -->
+            <section id="tb_endereco" class="table-section">
+                <h2>Tabela: endereco</h2>
+                <p>Armazena os dados de localização vinculados aos clientes (Normalização em 1FN).</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_endereco</td><td>Identificador único do endereço</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>id_cliente</td><td>Vínculo com o cliente titular</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-dp">DP</span></td><td>Origem: cliente</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>logradouro</td><td>Rua/Avenida</td><td>VARCHAR(100)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>numero</td><td>Número da residência</td><td>VARCHAR(20)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>complemento</td><td>Bloco, apartamento, etc.</td><td>VARCHAR(50)</td><td>NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>bairro</td><td>Bairro da residência</td><td>VARCHAR(50)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>cidade</td><td>Cidade</td><td>VARCHAR(50)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>uf</td><td>Estado (Sigla)</td><td>CHAR(2)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>cep</td><td>Código Postal</td><td>CHAR(8)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Input balcão</td><td>Atendente, Gerente, Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: usuario -->
+            <section id="tb_usuario" class="table-section">
+                <h2>Tabela: usuario</h2>
+                <p>Armazena credenciais e perfis de acesso dos operadores do sistema.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_usuario</td><td>Identificador único do usuário</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Gerente, Admin</td></tr>
+                        <tr><td>nome</td><td>Nome do funcionário</td><td>VARCHAR(100)</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>RH/Admin</td><td>Gerente, Admin</td></tr>
+                        <tr><td>login</td><td>Credencial de acesso</td><td>VARCHAR(50)</td><td>NOT NULL, <strong>[UK]</strong></td><td><span class="badge badge-na">N/A</span></td><td>RH/Admin</td><td>Gerente, Admin</td></tr>
+                        <tr><td>senha_hash</td><td>Senha criptografada (Argon2id/bcrypt)</td><td>VARCHAR(255)</td><td>NOT NULL</td><td><span class="badge badge-dps">DPS</span></td><td>Sistema</td><td>Admin</td></tr>
+                        <tr><td>perfil</td><td>Nível de privilégio (RBAC — RF05/SEG-04)</td><td>ENUM('ATENDENTE','GERENTE','ADMIN')</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Admin</td><td>Admin</td></tr>
+                        <tr><td>ativo</td><td>Exclusão lógica de funcionário</td><td>TINYINT(1)</td><td>NOT NULL, DEFAULT 1</td><td><span class="badge badge-na">N/A</span></td><td>Admin</td><td>Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: categoria -->
+            <section id="tb_categoria" class="table-section">
+                <h2>Tabela: categoria</h2>
+                <p>Classificação estrutural dos produtos oferecidos no minimercado.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_categoria</td><td>Identificador único da categoria</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>nome</td><td>Nome da categoria</td><td>VARCHAR(50)</td><td>NOT NULL, <strong>[UK]</strong></td><td><span class="badge badge-na">N/A</span></td><td>Gestão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>ativo</td><td>Status de inativação</td><td>TINYINT(1)</td><td>NOT NULL, DEFAULT 1</td><td><span class="badge badge-na">N/A</span></td><td>Gestão</td><td>Gerente, Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: produto -->
+            <section id="tb_produto" class="table-section">
+                <h2>Tabela: produto</h2>
+                <p>Catálogo central de produtos e saldo atual de estoque.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_produto</td><td>Identificador único do produto</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>id_categoria</td><td>Vínculo com a tabela de categorias</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Gestão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>descricao</td><td>Nome e detalhes do produto</td><td>VARCHAR(100)</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Gestão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>preco_tabela</td><td>Preço base atual de venda (RN03 — > 0)</td><td>DECIMAL(10,2)</td><td>NOT NULL, CHECK (preco_tabela &gt; 0)</td><td><span class="badge badge-na">N/A</span></td><td>Gestão</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>saldo_estoque</td><td>Quantidade física atual (RN04 — &ge; 0)</td><td>INT</td><td>NOT NULL, CHECK (saldo_estoque &ge; 0)</td><td><span class="badge badge-na">N/A</span></td><td>Entrada/Saída</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>ativo</td><td>Flag para bloquear vendas futuras</td><td>TINYINT(1)</td><td>NOT NULL, DEFAULT 1</td><td><span class="badge badge-na">N/A</span></td><td>Gestão</td><td>Gerente, Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: historico_preco -->
+            <section id="tb_historico_preco" class="table-section">
+                <h2>Tabela: historico_preco</h2>
+                <p>Log de auditoria para rastreamento de flutuações de preços de produtos.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_historico</td><td>Identificador do registro de alteração</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Gerente, Admin</td></tr>
+                        <tr><td>id_produto</td><td>Produto que sofreu alteração</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Origem: produto</td><td>Gerente, Admin</td></tr>
+                        <tr><td>preco_anterior</td><td>Valor base antes do UPDATE</td><td>DECIMAL(10,2)</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Trigger</td><td>Gerente, Admin</td></tr>
+                        <tr><td>preco_novo</td><td>Novo valor definido</td><td>DECIMAL(10,2)</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Trigger</td><td>Gerente, Admin</td></tr>
+                        <tr><td>data_alteracao</td><td>Data e hora exata do ajuste</td><td>DATETIME</td><td>NOT NULL, DEFAULT</td><td><span class="badge badge-na">N/A</span></td><td>Sistema</td><td>Gerente, Admin</td></tr>
+                        <tr><td>id_usuario</td><td>Usuário responsável pela mudança</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Sessão atual</td><td>Gerente, Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: pedido -->
+            <section id="tb_pedido" class="table-section">
+                <h2>Tabela: pedido</h2>
+                <p>Cabeçalho central de vendas contendo totalizadores e metadados da transação.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_pedido</td><td>Identificador único da venda</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>id_cliente</td><td>Cliente associado à venda</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-dp">DP</span></td><td>Checkout</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>id_usuario</td><td>Atendente que efetuou a venda</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Sessão atual</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>data_hora</td><td>Momento do registro</td><td>DATETIME</td><td>NOT NULL, DEFAULT</td><td><span class="badge badge-na">N/A</span></td><td>Sistema</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>situacao</td><td>Estado atual do pedido (RN01/PR02)</td><td>ENUM('ABERTO','FINALIZADO','CANCELADO')</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Fluxo Venda</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>forma_pagamento</td><td>Meio de quitação escolhido (RF03)</td><td>ENUM('DINHEIRO','CARTAO_DEBITO','CARTAO_CREDITO','PIX')</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Checkout</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>valor_desconto</td><td>Desconto aplicado (RN05 — &ge; 0)</td><td>DECIMAL(10,2)</td><td>NOT NULL, DEFAULT 0.00, CHECK (valor_desconto &ge; 0)</td><td><span class="badge badge-na">N/A</span></td><td>Checkout</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>valor_total</td><td>Somatória final com desconto (RN05 — &ge; 0)</td><td>DECIMAL(10,2)</td><td>NOT NULL, CHECK (valor_total &ge; 0)</td><td><span class="badge badge-na">N/A</span></td><td>Calculado</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>data_cancelamento</td><td>Preenchido apenas em caso de estorno</td><td>DATETIME</td><td>NULL</td><td><span class="badge badge-na">N/A</span></td><td>Fluxo Pós-Venda</td><td>Gerente, Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: item_pedido -->
+            <section id="tb_item_pedido" class="table-section">
+                <h2>Tabela: item_pedido</h2>
+                <p>Detalha a composição física e financeira de cada pedido (tabela associativa com payload).</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_item</td><td>Identificador único do item no pedido</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>id_pedido</td><td>Referência ao cabeçalho da venda</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE CASCADE, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Origem: pedido</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>id_produto</td><td>Referência ao produto vendido</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Origem: produto</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>quantidade</td><td>Volume vendido do produto (RN01 — &gt; 0)</td><td>INT</td><td>NOT NULL, CHECK (quantidade &gt; 0)</td><td><span class="badge badge-na">N/A</span></td><td>Checkout</td><td>Atendente, Gerente, Admin</td></tr>
+                        <tr><td>preco_unitario_venda</td><td>Preço congelado no momento da venda (RN03 — &ge; 0)</td><td>DECIMAL(10,2)</td><td>NOT NULL, CHECK (preco_unitario_venda &ge; 0)</td><td><span class="badge badge-na">N/A</span></td><td>Tabela produto</td><td>Atendente, Gerente, Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: estorno -->
+            <section id="tb_estorno" class="table-section">
+                <h2>Tabela: estorno</h2>
+                <p>Registro formal de devoluções e cancelamentos de pedidos finalizados.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_estorno</td><td>Identificador único da operação</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Gerente, Admin</td></tr>
+                        <tr><td>id_pedido</td><td>Referência ao pedido cancelado</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Origem: pedido</td><td>Gerente, Admin</td></tr>
+                        <tr><td>id_usuario</td><td>Gestor que autorizou a operação</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Sessão atual</td><td>Gerente, Admin</td></tr>
+                        <tr><td>valor_estornado</td><td>Total devolvido ao cliente (PR02 CDC 7 dias — &gt; 0)</td><td>DECIMAL(10,2)</td><td>NOT NULL, CHECK (valor_estornado &gt; 0)</td><td><span class="badge badge-na">N/A</span></td><td>Soma itens</td><td>Gerente, Admin</td></tr>
+                        <tr><td>data_estorno</td><td>Momento exato da devolução</td><td>DATETIME</td><td>NOT NULL, DEFAULT</td><td><span class="badge badge-na">N/A</span></td><td>Sistema</td><td>Gerente, Admin</td></tr>
+                        <tr><td>motivo</td><td>Justificativa detalhada do cancelamento</td><td>VARCHAR(255)</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Input Gestor</td><td>Gerente, Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Tabela: log_auditoria -->
+            <section id="tb_log_auditoria" class="table-section">
+                <h2>Tabela: log_auditoria</h2>
+                <p>Mecanismo Append-Only para rastrear operações sensíveis no banco (Compliance e Segurança).</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atributo</th>
+                            <th>Descrição / Regra de Negócio</th>
+                            <th>Tipo e Tamanho</th>
+                            <th>Constraints</th>
+                            <th>LGPD</th>
+                            <th>Linhagem</th>
+                            <th>Acesso (RBAC)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>id_log</td><td>Identificador único do evento</td><td>INT</td><td><strong>[PK]</strong> AUTO_INCREMENT</td><td><span class="badge badge-na">N/A</span></td><td>Auto-gerado</td><td>Admin</td></tr>
+                        <tr><td>id_usuario</td><td>Usuário que executou a ação</td><td>INT</td><td>NOT NULL, <strong>[FK]</strong> (ON DELETE RESTRICT, ON UPDATE CASCADE)</td><td><span class="badge badge-na">N/A</span></td><td>Sessão atual</td><td>Admin</td></tr>
+                        <tr><td>tabela_afetada</td><td>Nome da tabela onde ocorreu o evento</td><td>VARCHAR(50)</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Sistema</td><td>Admin</td></tr>
+                        <tr><td>operacao</td><td>Tipo DML auditado (RNF01/SEG-08 Append-Only)</td><td>ENUM('INSERT','UPDATE','DELETE')</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Sistema</td><td>Admin</td></tr>
+                        <tr><td>id_registro_afetado</td><td>Chave primária do dado alterado</td><td>INT</td><td>NOT NULL</td><td><span class="badge badge-na">N/A</span></td><td>Tabela alvo</td><td>Admin</td></tr>
+                        <tr><td>data_hora</td><td>Data e hora exata da ocorrência</td><td>DATETIME</td><td>NOT NULL, DEFAULT</td><td><span class="badge badge-na">N/A</span></td><td>Sistema</td><td>Admin</td></tr>
+                        <tr><td>detalhes_json</td><td>Payload do valor anterior e novo</td><td>JSON</td><td>NOT NULL</td><td><span class="badge badge-dp">DP</span></td><td>Trigger</td><td>Admin</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal do DER -->
+    <div id="der-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-controls">
+                <button id="zoom-in" class="btn">Zoom +</button>
+                <button id="zoom-out" class="btn">Zoom -</button>
+                <button id="zoom-reset" class="btn">Reset</button>
+            </div>
+            <div class="panzoom-container" id="panzoom-element">
+                <img src="assets/der.png" alt="Diagrama Entidade Relacionamento (DER)">
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
